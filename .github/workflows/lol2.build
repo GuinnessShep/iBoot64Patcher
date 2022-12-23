@@ -1,0 +1,21 @@
+#!/usr/bin/env zsh
+
+set -e
+
+export WORKFLOW_ROOT="/Users/runner/work/iBoot64Patcher/iBoot64Patcher/.github/workflows"
+export DEP_ROOT="/Users/runner/work/iBoot64Patcher/iBoot64Patcher/dep_root"
+export BASE="/Users/runner/work/iBoot64Patcher/iBoot64Patcher/"
+export CC="$(xcode-select --print-path)/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang"
+export CXX="$(xcode-select --print-path)/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++"
+
+cd $BASE
+rm -rf ${DEP_ROOT}/{lib,include}
+
+for ARCH in x86_64 arm64; do
+    for TYPE in Release Debug; do
+        ln -sf "${DEP_ROOT}/macOS_${ARCH}_${TYPE}/{lib/,include/}" "${DEP_ROOT}/"
+        cmake -DCMAKE_BUILD_TYPE="${TYPE}" -DCMAKE_MAKE_PROGRAM="$(which make)" -DCMAKE_C_COMPILER="${CC}" -DCMAKE_CXX_COMPILER="${CXX}" -DCMAKE_MESSAGE_LOG_LEVEL="WARNING" -G "CodeBlocks - Unix Makefiles" -S ./ -B "cmake-build-$TYPE-$ARCH" -DARCH="$ARCH" -DNO_PKGCFG=1
+        make -j4 -l4 -C "cmake-build-$TYPE-$ARCH"
+    done
+    llvm-strip -s "cmake-build-Release-$ARCH/iBoot64Patcher"
+done
