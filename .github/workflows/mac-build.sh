@@ -10,11 +10,24 @@ export CXX="$(xcrun --find clang++)"
 cd /Users/runner/work/iBoot64Patcher/iBoot64Patcher/
 rm -rf ${DEP_ROOT}/{lib,include}
 
-# Build Release
-cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_MAKE_PROGRAM="$(which make)" -DCMAKE_C_COMPILER="${CC}" -DCMAKE_CXX_COMPILER="${CXX}" -DCMAKE_MESSAGE_LOG_LEVEL="WARNING" -G "CodeBlocks - Unix Makefiles" -S ./ -B cmake-build-release -DARCH=x86_64,arm64 -DNO_PKGCFG=1
-make -j4 -l4 -C cmake-build-release
-llvm-strip -s cmake-build-release/iBoot64Patcher
+# Build x86_64 Release
+ln -sf ${DEP_ROOT}/macOS_x86_64_Release/{lib/,include/} ${DEP_ROOT}/
+cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_MAKE_PROGRAM="$(which make)" -DCMAKE_C_COMPILER="${CC}" -DCMAKE_CXX_COMPILER="${CXX}" -DCMAKE_MESSAGE_LOG_LEVEL="WARNING" -G "CodeBlocks - Unix Makefiles" -S ./ -B cmake-build-release-x86_64 -DARCH=x86_64 -DNO_PKGCFG=1
+make -j4 -l4 -C cmake-build-release-x86_64
+llvm-strip -s cmake-build-release-x86_64/iBoot64Patcher
 
-# Build Debug
-cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_MAKE_PROGRAM="$(which make)" -DCMAKE_C_COMPILER="${CC}" -DCMAKE_CXX_COMPILER="${CXX}" -DCMAKE_MESSAGE_LOG_LEVEL="WARNING" -G "CodeBlocks - Unix Makefiles" -S ./ -B cmake-build-debug -DARCH=x86_64,arm64 -DNO_PKGCFG=1
-make -j4 -l4 -C cmake-build-debug
+# Build x86_64 Debug
+ln -sf ${DEP_ROOT}/macOS_x86_64_Debug/{lib/,include/} ${DEP_ROOT}/
+cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_MAKE_PROGRAM="$(which make)" -DCMAKE_C_COMPILER="${CC}" -DCMAKE_CXX_COMPILER="${CXX}" -DCMAKE_MESSAGE_LOG_LEVEL="WARNING" -G "CodeBlocks - Unix Makefiles" -S ./ -B cmake-build-debug-x86_64 -DARCH=x86_64 -DNO_PKGCFG=1
+make -j4 -l4 -C cmake-build-debug-x86_64
+
+# Build arm64 Release
+ln -sf ${DEP_ROOT}/macOS_arm64_Release/{lib/,include/} ${DEP_ROOT}/
+cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_MAKE_PROGRAM="$(which make)" -DCMAKE_C_COMPILER="${CC}" -DCMAKE_CXX_COMPILER="${CXX}" -DCMAKE_MESSAGE_LOG_LEVEL="WARNING" -G "CodeBlocks - Unix Makefiles" -S ./ -B cmake-build-release-arm64 -DARCH=arm64 -DNO_PKGCFG=1
+make -j4 -l4 -C cmake-build-release-arm64
+
+# Build arm64 Debug
+ln -sf ${DEP_ROOT}/macOS_arm64_Debug/{lib/,include/} ${DEP_ROOT}/
+cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_MAKE_PROGRAM="$(which make)" -DCMAKE_C_COMPILER="${CC}" -DCMAKE_CXX_COMPILER="${CXX}" -DCMAKE_MESSAGE_LOG_LEVEL="WARNING" -G "CodeBlocks - Unix Makefiles" -S ./ -B cmake-build-debug-arm64 -DARCH=arm64 -DNO_PKGCFG=1
+make -j4 -l4 -C cmake-build-debug-arm64
+llvm-strip -s cmake-build-release-arm64/iBoot64Patcher
