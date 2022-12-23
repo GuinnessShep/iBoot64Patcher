@@ -52,11 +52,10 @@ int main(int argc, const char * argv[]) {
     
     ibootpatchfinder64 *ibp = ibootpatchfinder64::make_ibootpatchfinder64(argv[1]);
     
-    /* Check to see if the loader has a kernel load routine before trying to apply custom boot args + debug-enabled override. */
     if(ibp->has_kernel_load()) {
         if(custom_boot_args) {
             try {
-                printf("getting get_boot_arg_patch(%s) patch\n",custom_boot_args);
+                printf("Getting get_boot_arg_patch(%s) patch\n",custom_boot_args);
                 auto p = ibp->get_boot_arg_patch(custom_boot_args);
                 patches.insert(patches.begin(), p.begin(), p.end());
             } catch (tihmstar::exception &e) {
@@ -65,10 +64,8 @@ int main(int argc, const char * argv[]) {
             }
         }
         
-        
-        /* Only bootloaders with the kernel load routines pass the DeviceTree. */
         try {
-            printf("getting get_debug_enabled_patch() patch\n");
+            printf("Getting get_debug_enabled_patch() patch\n");
             auto p = ibp->get_debug_enabled_patch();
             patches.insert(patches.begin(), p.begin(), p.end());
         } catch (...) {
@@ -77,11 +74,10 @@ int main(int argc, const char * argv[]) {
         }
     }
     
-    /* Ensure that the loader has a shell. */
     if(ibp->has_recovery_console()) {
         if (cmd_handler_str && cmd_handler_ptr) {
             try {
-                printf("getting get_cmd_handler_patch(%s,0x%016llx) patch\n",cmd_handler_str,cmd_handler_ptr);
+                printf("Getting get_cmd_handler_patch(%s, 0x%016llx) patch\n", cmd_handler_str, cmd_handler_ptr);
                 auto p = ibp->get_cmd_handler_patch(cmd_handler_str, cmd_handler_ptr);
                 patches.insert(patches.begin(), p.begin(), p.end());
             } catch (...) {
@@ -92,7 +88,7 @@ int main(int argc, const char * argv[]) {
         
         if (flags & FLAG_UNLOCK_NVRAM) {
             try {
-                printf("getting get_unlock_nvram_patch() patch\n");
+                printf("Getting get_unlock_nvram_patch() patch\n");
                 auto p = ibp->get_unlock_nvram_patch();
                 patches.insert(patches.begin(), p.begin(), p.end());
             } catch (...) {
@@ -109,9 +105,8 @@ int main(int argc, const char * argv[]) {
         }
     }
     
-    /* All loaders have the RSA check. */
     try {
-        printf("getting get_sigcheck_patch() patch\n");
+        printf("Getting get_sigcheck_patch() patch\n");
         auto p = ibp->get_sigcheck_patch();
         patches.insert(patches.begin(), p.begin(), p.end());
     } catch (...) {
@@ -120,7 +115,6 @@ int main(int argc, const char * argv[]) {
     }
     
     
-    /* Write out the patched file... */
     fp = fopen(argv[2], "wb+");
     if(!fp) {
         printf("%s: Unable to open %s!\n", __FUNCTION__, argv[2]);
@@ -130,9 +124,9 @@ int main(int argc, const char * argv[]) {
     for (auto p : patches) {
         char *buf = (char*)ibp->buf();
         offset_t off = (offset_t)(p._location - ibp->find_base());
-        printf("applying patch=%p : ",p._location);
+        printf("Applying patch=%p: ", p._location);
         for (int i=0; i<p._patchSize; i++) {
-            printf("%02x",((uint8_t*)p._patch)[i]);
+            printf("%02x", ((uint8_t*)p._patch)[i]);
         }
         printf("\n");
         memcpy(&buf[off], p._patch, p._patchSize);
